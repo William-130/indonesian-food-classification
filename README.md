@@ -15,6 +15,8 @@ Deep Learning model untuk klasifikasi 35 jenis makanan Indonesia menggunakan **E
 - ✅ **Real-time Inference**: 
   - Desktop App (OpenCV)
   - Web-based App (Flask + Browser Webcam)
+  - **NEW:** YOLOv8 Object Detection + Nutrition Info
+- ✅ **Nutrition Database**: 1,347 Indonesian foods dengan fuzzy matching
 - ✅ **Training Monitoring**: Live curves, metrics tracking, checkpointing
 
 ---
@@ -117,6 +119,29 @@ python webcam_server.py
 - Click **"Start"** untuk activate webcam
 - Prediction updates setiap ~1 detik
 - No installation needed on client side
+
+### 4. **🆕 YOLOv8 Detection + Nutrition Info**
+
+```bash
+# Install dependencies first
+pip install thefuzz python-Levenshtein ultralytics
+
+# Run YOLOv8 detector
+python yolo_food_detector.py
+```
+
+**Features:**
+- ✅ Real-time object detection dengan YOLOv8
+- ✅ Food classification dengan EfficientNet-B0
+- ✅ Nutrition info (kalori, protein, lemak, karbohidrat)
+- ✅ Fuzzy matching dengan 1,347 foods database
+
+**Controls:**
+- `SPACE` - Pause/Resume
+- `S` - Save screenshot  
+- `Q` - Quit
+
+📖 **Full Guide:** See `YOLO_NUTRITION_GUIDE.md`
 
 ---
 

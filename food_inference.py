@@ -22,6 +22,7 @@ class FoodClassifier:
             num_classes: Number of classes (35)
         """
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.num_classes = num_classes
         
         # Class names (from CSV header)
         self.class_names = [
@@ -54,19 +55,34 @@ class FoodClassifier:
         print(f"✓ Model loaded successfully on {self.device}")
         print(f"✓ Ready to classify {len(self.class_names)} Indonesian foods")
     
-    def predict(self, image_path, top_k=5):
+    def predict(self, image_input, top_k=5):
         """
         Predict makanan dari image
         
         Args:
-            image_path: Path ke image file
+            image_input: Path ke image file (str) atau NumPy array (BGR or RGB)
             top_k: Return top-k predictions
             
         Returns:
-            dict: Prediction results dengan top-k classes dan confidence
+            list: Prediction results dengan top-k classes dan confidence
         """
-        # Load dan preprocess image
-        image = Image.open(image_path).convert('RGB')
+        # Handle different input types
+        if isinstance(image_input, str):
+            # Load from file path
+            image = Image.open(image_input).convert('RGB')
+        elif hasattr(image_input, 'shape'):  # NumPy array or tensor
+            # Convert BGR (OpenCV) to RGB if needed
+            import numpy as np
+            if len(image_input.shape) == 3 and image_input.shape[2] == 3:
+                # Assume BGR (OpenCV format), convert to RGB
+                image_rgb = image_input[..., ::-1].copy()
+                image = Image.fromarray(image_rgb.astype('uint8'))
+            else:
+                image = Image.fromarray(image_input.astype('uint8'))
+        else:
+            raise ValueError("image_input must be file path (str) or NumPy array")
+        
+        # Preprocess
         image_tensor = self.transform(image).unsqueeze(0).to(self.device)
         
         # Predict
@@ -77,22 +93,15 @@ class FoodClassifier:
             # Get top-k predictions
             top_probs, top_indices = torch.topk(probabilities[0], top_k)
             
-        # Format results
+        # Format results as list
         predictions = []
         for prob, idx in zip(top_probs, top_indices):
             predictions.append({
                 'class': self.class_names[idx.item()],
-                'confidence': f"{prob.item()*100:.2f}%",
-                'probability': prob.item()
+                'confidence': prob.item()  # Return as float, not string
             })
         
-        result = {
-            'top_prediction': predictions[0]['class'],
-            'top_confidence': predictions[0]['confidence'],
-            'all_predictions': predictions
-        }
-        
-        return result
+        return predictions
     
     def predict_batch(self, image_paths):
         """Predict multiple images at once"""
