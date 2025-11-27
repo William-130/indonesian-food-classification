@@ -1,0 +1,46 @@
+Classification Report - Indonesian Food Classification
+============================================================
+Test Accuracy: 100.00%
+============================================================
+
+                      precision    recall  f1-score   support
+
+      asinan-jakarta     1.0000    1.0000    1.0000        10
+         ayam-betutu     1.0000    1.0000    1.0000        11
+    ayam-bumbu-rujak     1.0000    1.0000    1.0000        13
+ayam-goreng-lengkuas     1.0000    1.0000    1.0000        13
+          bika-ambon     1.0000    1.0000    1.0000         7
+          bir-pletok     1.0000    1.0000    1.0000         8
+        bubur-manado     1.0000    1.0000    1.0000        10
+              cendol     1.0000    1.0000    1.0000        14
+            es-dawet     1.0000    1.0000    1.0000        11
+           gado-gado     1.0000    1.0000    1.0000         6
+               gudeg     1.0000    1.0000    1.0000         4
+      gulai-ikan-mas     1.0000    1.0000    1.0000         4
+              keladi     1.0000    1.0000    1.0000         9
+         kerak-telor     1.0000    1.0000    1.0000         6
+         klappertart     1.0000    1.0000    1.0000         8
+               kolak     1.0000    1.0000    1.0000         6
+          kue-lumpur     1.0000    1.0000    1.0000         4
+         kunyit-asam     0.0000    0.0000    0.0000         0
+         laksa-bogor     1.0000    1.0000    1.0000        10
+     lumpia-semarang     1.0000    1.0000    1.0000        11
+            mie-aceh     1.0000    1.0000    1.0000        12
+            nagasari     1.0000    1.0000    1.0000        22
+ nasi-goreng-kampung     0.0000    0.0000    0.0000         0
+              papeda     1.0000    1.0000    1.0000        10
+    pempek-palembang     1.0000    1.0000    1.0000         4
+      rawon-surabaya     1.0000    1.0000    1.0000        12
+             rendang     1.0000    1.0000    1.0000        13
+        rujak-cingur     1.0000    1.0000    1.0000        14
+    sate-ayam-madura     1.0000    1.0000    1.0000         6
+          sate-lilit     1.0000    1.0000    1.0000        15
+       sate-maranggi     1.0000    1.0000    1.0000        11
+             soerabi     1.0000    1.0000    1.0000        10
+  soto-ayam-lamongan     1.0000    1.0000    1.0000        12
+         soto-banjar     1.0000    1.0000    1.0000         9
+          tahu-telur     1.0000    1.0000    1.0000        14
+
+            accuracy                         1.0000       329
+           macro avg     0.9429    0.9429    0.9429       329
+        weighted avg     1.0000    1.0000    1.0000       329
