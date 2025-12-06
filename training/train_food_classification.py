@@ -21,10 +21,13 @@ from sklearn.metrics import (
 )
 import json
 import os
+import sys
 from datetime import datetime
 
-from food_model import create_efficientnet_model
-from food_dataset import create_dataloaders
+# Add parent directory to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+from training.food_model import create_efficientnet_model
+from training.food_dataset import create_dataloaders
 
 class FoodTrainer:
     def __init__(self, model, train_loader, dev_loader, test_loader, class_names, device, config):
@@ -249,7 +252,8 @@ class FoodTrainer:
     
     def save_checkpoint(self, filename, epoch, dev_acc):
         """Save model checkpoint"""
-        os.makedirs('checkpoints_food', exist_ok=True)
+        checkpoint_dir = os.path.join(os.path.dirname(__file__), '../models/checkpoints')
+        os.makedirs(checkpoint_dir, exist_ok=True)
         
         checkpoint = {
             'epoch': epoch,
@@ -261,12 +265,13 @@ class FoodTrainer:
             'class_names': self.class_names
         }
         
-        filepath = os.path.join('checkpoints_food', filename)
+        filepath = os.path.join(checkpoint_dir, filename)
         torch.save(checkpoint, filepath)
         
         # Also save standalone model weights
         if 'best' in filename:
-            torch.save(self.model.state_dict(), 'food_model_efficientnet.pth')
+            model_path = os.path.join(os.path.dirname(__file__), '../models/food_model_efficientnet.pth')
+            torch.save(self.model.state_dict(), model_path)
     
     def evaluate_and_visualize(self):
         """Comprehensive evaluation dengan confusion matrix dan visualizations"""
@@ -305,7 +310,10 @@ class FoodTrainer:
         print(report)
         
         # Save classification report
-        with open('classification_report.txt', 'w', encoding='utf-8') as f:
+        report_dir = os.path.join(os.path.dirname(__file__), '../results/reports')
+        os.makedirs(report_dir, exist_ok=True)
+        report_path = os.path.join(report_dir, 'classification_report.txt')
+        with open(report_path, 'w', encoding='utf-8') as f:
             f.write("Classification Report - Indonesian Food Classification\n")
             f.write("="*60 + "\n")
             f.write(f"Test Accuracy: {test_acc:.2f}%\n")
@@ -371,10 +379,13 @@ class FoodTrainer:
         plt.setp(axes[1].get_yticklabels(), rotation=0)
         
         plt.tight_layout()
-        plt.savefig('confusion_matrix.png', dpi=300, bbox_inches='tight')
+        plots_dir = os.path.join(os.path.dirname(__file__), '../results/plots')
+        os.makedirs(plots_dir, exist_ok=True)
+        plot_path = os.path.join(plots_dir, 'confusion_matrix.png')
+        plt.savefig(plot_path, dpi=300, bbox_inches='tight')
         plt.close()
         
-        print("✓ Confusion matrix saved to: confusion_matrix.png")
+        print(f"✓ Confusion matrix saved to: {plot_path}")
     
     def plot_training_curves(self):
         """Plot training and validation curves"""
@@ -432,10 +443,12 @@ class FoodTrainer:
                        verticalalignment='center')
         
         plt.tight_layout()
-        plt.savefig('training_curves.png', dpi=300, bbox_inches='tight')
+        plots_dir = os.path.join(os.path.dirname(__file__), '../results/plots')
+        plot_path = os.path.join(plots_dir, 'training_curves.png')
+        plt.savefig(plot_path, dpi=300, bbox_inches='tight')
         plt.close()
         
-        print("✓ Training curves saved to: training_curves.png")
+        print(f"✓ Training curves saved to: {plot_path}")
     
     def plot_per_class_accuracy(self, y_true, y_pred):
         """Plot per-class accuracy"""
@@ -473,10 +486,12 @@ class FoodTrainer:
             ax.text(acc + 1, i, f'{acc:.1f}%', va='center', fontsize=8)
         
         plt.tight_layout()
-        plt.savefig('per_class_accuracy.png', dpi=300, bbox_inches='tight')
+        plots_dir = os.path.join(os.path.dirname(__file__), '../results/plots')
+        plot_path = os.path.join(plots_dir, 'per_class_accuracy.png')
+        plt.savefig(plot_path, dpi=300, bbox_inches='tight')
         plt.close()
         
-        print("✓ Per-class accuracy saved to: per_class_accuracy.png")
+        print(f"✓ Per-class accuracy saved to: {plot_path}")
     
     def compute_topk_accuracy(self):
         """Compute Top-1, Top-3, Top-5 accuracy"""

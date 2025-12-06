@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indonesian Food Recognition - AI Powered</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Blue/Cyan Theme Colors */
+            --bg-1: #0b1a26; /* deep navy */
+            --bg-2: #0b1a26; /* flat for subtle gradient */
+            --glass: rgba(255, 255, 255, 0.06);
+            --secondary: #007bce; /* primary blue */
+            --secondary-soft: rgba(0, 123, 206, 0.12);
+            --accent: #00ffff; /* cyan accent */
+            --accent-soft: rgba(0, 255, 255, 0.12);
+            --tone-1: #6ecef2; /* light blue */
+            --tone-2: #56c2ef; /* light blue 2 */
+            --error: #d13b3b; /* tomato red */
+            --text: #ffffff; /* white */
+            --muted: rgba(255,255,255,0.75);
+
+            /* Elevation */
+            --shadow-1: 0 2px 10px rgba(0, 123, 206, 0.18);
+            --shadow-2: 0 8px 30px rgba(0, 123, 206, 0.28);
+            --shadow-3: 0 12px 40px rgba(0, 123, 206, 0.36);
+
+            /* Spacing */
+            --radius-sm: 10px;
+            --radius-md: 15px;
+            --radius-lg: 20px;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', 'Google Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background:
+                radial-gradient(1200px 800px at 80% -10%, rgba(0,255,255,0.08), transparent 60%),
+                radial-gradient(1000px 700px at -10% 90%, rgba(86,194,239,0.10), transparent 60%),
+                linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+            min-height: 100vh;
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(0, 123, 206, 0.18);
+            border-radius: 50%;
+            animation: float 15s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(100px); opacity: 0; }
+        }
+
+        /* Header */
+        /* Top navbar */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            background: rgba(20, 28, 20, 0.65);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--secondary);
+            box-shadow: var(--shadow-1);
+        }
+
+        .topbar .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Google Sans', 'Roboto', sans-serif;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+        }
+
+        .topbar .brand .logo {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, var(--secondary), var(--accent));
+            box-shadow: 0 0 12px rgba(0, 123, 206, 0.6);
+        }
+
+        .topbar .status {
+            font-size: 0.9em;
+            color: var(--secondary);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .topbar .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        .header {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 40px 20px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--secondary);
+            box-shadow: var(--shadow-2);
+        }
+
+        .header h1 {
+            font-size: 3em;
+            font-weight: 600;
+            font-family: 'Google Sans', 'Roboto', sans-serif;
+            letter-spacing: -0.5px;
+            background: linear-gradient(45deg, var(--tone-1), var(--accent), var(--secondary));
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient 3s ease infinite;
+            text-shadow: 0 0 24px rgba(0, 123, 206, 0.25);
+            margin-bottom: 10px;
+        }
+
+        @keyframes gradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .header p {
+            font-size: 1.05em;
+            font-weight: 400;
+            color: var(--tone-1);
+            text-shadow: 0 0 10px rgba(0, 123, 206, 0.18);
+            letter-spacing: 0.3px;
+        }
+
+        /* Confidence badge in header */
+        .confidence-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            margin-top: 12px;
+            background: var(--accent-soft);
+            border: 1.5px solid var(--accent);
+            border-radius: 20px;
+            color: var(--accent);
+            font-size: 0.9em;
+            box-shadow: var(--shadow-1);
+        }
+        .confidence-badge .chip {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        .accuracy-badge {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 8px 20px;
+            background: var(--secondary-soft);
+            border: 2px solid var(--secondary);
+            border-radius: 25px;
+            font-size: 0.9em;
+            font-weight: 500;
+            font-family: 'Google Sans', 'Roboto', sans-serif;
+            color: var(--secondary);
+            box-shadow: var(--shadow-1);
+            animation: pulse 2s infinite;
+            letter-spacing: 0.5px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 138, 0, 0.25); }
+            50% { box-shadow: 0 0 40px rgba(59, 209, 111, 0.30); }
+        }
+
+        /* Main container */
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+
+        /* Upload section */
+        .upload-section {
+            background: var(--glass);
+            border: 3px solid var(--secondary);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: var(--shadow-2);
+            backdrop-filter: blur(20px);
+            margin-bottom: 30px;
+        }
+
+        .upload-area {
+            border: 3px dashed var(--secondary);
+            border-radius: 15px;
+            padding: 60px 20px;
+            text-align: center;
+            background: var(--secondary-soft);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area:hover {
+            background: rgba(0, 123, 206, 0.18);
+            border-color: var(--secondary);
+            box-shadow: var(--shadow-3);
+            transform: scale(1.02);
+        }
+
+        .upload-area.dragover {
+            background: rgba(0, 255, 255, 0.18);
+            border-color: var(--accent);
+            box-shadow: var(--shadow-3);
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .upload-text {
+            font-size: 1.3em;
+            color: var(--secondary);
+            margin-bottom: 10px;
+            font-weight: 500;
+            font-family: 'Google Sans', 'Roboto', sans-serif;
+            letter-spacing: 0.2px;
+        }
+
+        .upload-hint {
+            font-size: 0.9em;
+            font-weight: 400;
+            color: var(--muted);
+            letter-spacing: 0.3px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .btn-upload {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 15px 40px;
+            background: linear-gradient(90deg, var(--secondary), var(--tone-2));
+            color: #1a0033;
+            font-size: 1.05em;
+            font-weight: 500;
+            font-family: 'Google Sans', 'Roboto', sans-serif;
+            letter-spacing: 0.5px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-1);
+        }
+
+        .btn-upload:hover {
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-3);
+        }
+
+        .btn-upload:focus-visible,
+        .btn-retry:focus-visible {
+            outline: 2px solid var(--secondary);
+            outline-offset: 2px;
+        }
+
+        /* Loading spinner */
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 138, 0, 0.08);
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Results section */
+        .results {
+            display: none;
+        }
+
+        .result-card {
+            background: var(--glass);
+            border: 2px solid var(--secondary);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow-2);
+            backdrop-filter: blur(20px);
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .result-image {
+            text-align: center;
+        }
+
+        .result-image img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 15px;
+            border: 3px solid var(--secondary);
+            box-shadow: var(--shadow-1);
+        }
+
+        .result-info {
+            padding: 20px;
+        }
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .food-name {
+            font-size: 2em;
+            font-weight: 600;
+            font-family: 'Google Sans', 'Roboto', sans-serif;
+            color: #ffffff;
+            margin: 0;
+            text-transform: capitalize;
+            letter-spacing: 0.1px;
+        }
+
+        .confidence {
+            font-size: 0.95em;
+            color: var(--secondary);
+            margin: 0;
+            padding: 6px 10px;
+            background: var(--secondary-soft);
+            border: 1px solid var(--secondary);
+            border-radius: 16px;
+        }
+
+        .nutrition-title {
+            font-size: 1.8em;
+            color: var(--accent);
+            margin-bottom: 20px;
+            font-weight: 500;
+            font-family: 'Google Sans', 'Roboto', sans-serif;
+            text-shadow: 0 0 10px rgba(255, 138, 0, 0.35);
+            letter-spacing: -0.3px;
+        }
+
+        .nutrition-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .nutrition-item {
+            background: rgba(0, 123, 206, 0.06);
+            padding: 18px;
+            border-radius: 12px;
+            border: 2px solid var(--secondary);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .nutrition-item:hover {
+            background: var(--accent-soft);
+            border-color: var(--accent);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-3);
+        }
+
+        .nutrition-label {
+            font-size: 0.8em;
+            font-weight: 500;
+            font-family: 'Google Sans', 'Roboto', sans-serif;
+            color: var(--muted);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+
+        .nutrition-value {
+            font-size: 1.5em;
+            font-weight: 600;
+            font-family: 'Google Sans', 'Roboto', sans-serif;
+            color: var(--secondary);
+            text-shadow: 0 0 8px rgba(0, 123, 206, 0.22);
+            letter-spacing: -0.2px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .btn-retry {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 35px;
+            background: linear-gradient(90deg, var(--secondary), var(--tone-2));
+            color: #fff;
+            font-size: 1em;
+            font-weight: 500;
+            font-family: 'Google Sans', 'Roboto', sans-serif;
+            letter-spacing: 0.5px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-1);
+        }
+
+        .btn-retry:hover {
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-3);
+        }
+
+        /* Error message */
+        .error {
+            display: none;
+            background: rgba(255, 0, 100, 0.2);
+            border: 2px solid var(--error);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            color: var(--error);
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .topbar { padding: 10px 14px; }
+            .topbar .brand div { font-size: 0.95em; }
+            .header { padding: 28px 14px; }
+            .header h1 { font-size: 2em; }
+            .header p { font-size: 0.95em; }
+            .upload-section { padding: 22px; }
+            .upload-area { padding: 36px 14px; }
+            .btn-upload { width: 100%; }
+            .result-grid { grid-template-columns: 1fr; }
+            .nutrition-grid { grid-template-columns: 1fr; }
+            .result-card { padding: 20px; }
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: var(--secondary);
+            font-size: 0.9em;
+            position: relative;
+            z-index: 10;
+        }
+
+        .footer a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .footer a:hover {
+            text-shadow: 0 0 10px rgba(255, 138, 0, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <!-- Compact top bar -->
+    <div class="topbar">
+        <div class="brand">
+            <div class="logo"></div>
+            <div>Indonesian Food AI</div>
+        </div>
+        <div class="status"><span class="dot"></span> Online</div>
+    </div>
+    <!-- Animated background particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Header -->
+    <div class="header">
+        <h1>🍽️ Indonesian Food Recognition</h1>
+        <p>AI-Powered Food Classification & Nutrition Analysis</p>
+        <div class="confidence-badge" id="headerConfidence" style="display:none;">
+            <span class="chip"></span>
+            <span>Confidence: <strong id="headerConfidenceValue">—</strong></span>
+        </div>
+        <!-- Accuracy badge removed per request -->
+    </div>
+
+    <!-- Main container -->
+    <div class="container">
+        <!-- Upload section -->
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📸</div>
+                <div class="upload-text">Drop your food image here</div>
+                <div class="upload-hint">or use the buttons below</div>
+                <input type="file" id="fileInput" accept="image/png,image/jpeg,image/jpg">
+                
+                <!-- Action buttons -->
+                <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px; flex-wrap: wrap;">
+                    <button class="btn-upload" onclick="document.getElementById('fileInput').click()">
+                        📁 Choose Image
+                    </button>
+                    <button class="btn-upload" onclick="openCamera()">
+                        📷 Take Photo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Camera section (hidden by default) -->
+            <div class="camera-section" id="cameraSection" style="display: none;">
+                <div style="position: relative; max-width: 600px; margin: 20px auto;">
+                    <video id="cameraVideo" autoplay playsinline style="width: 100%; border-radius: 15px; border: 3px solid var(--secondary);"></video>
+                    <canvas id="cameraCanvas" style="display: none;"></canvas>
+                    <div style="text-align: center; margin-top: 20px; display: flex; gap: 15px; justify-content: center;">
+                        <button class="btn-upload" onclick="capturePhoto()">
+                            📸 Capture
+                        </button>
+                        <button class="btn-upload" onclick="closeCamera()" style="background: linear-gradient(45deg, var(--error), #b33636);">
+                            ❌ Close Camera
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading spinner -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="color: var(--accent); font-size: 1.2em;">Analyzing your food...</p>
+            </div>
+
+            <!-- Error message -->
+            <div class="error" id="error"></div>
+        </div>
+
+        <!-- Results section -->
+        <div class="results" id="results">
+            <div class="result-card">
+                <div class="result-grid">
+                    <div class="result-image">
+                        <img id="resultImage" src="" alt="Food Image">
+                    </div>
+                    <div class="result-info">
+                        <div class="food-name" id="foodName"></div>
+                        <div class="confidence" id="confidence">
+                            🎯 Confidence: <span id="confidenceValue"></span>
+                        </div>
+                        <div class="nutrition-title">📊 Nutrition Information</div>
+                        <div class="nutrition-grid">
+                            <div class="nutrition-item">
+                                <div class="nutrition-label">Calories</div>
+                                <div class="nutrition-value" id="calories">-</div>
+                            </div>
+                            <div class="nutrition-item">
+                                <div class="nutrition-label">Protein</div>
+                                <div class="nutrition-value" id="protein">-</div>
+                            </div>
+                            <div class="nutrition-item">
+                                <div class="nutrition-label">Fat</div>
+                                <div class="nutrition-value" id="fat">-</div>
+                            </div>
+                            <div class="nutrition-item">
+                                <div class="nutrition-label">Carbs</div>
+                                <div class="nutrition-value" id="carbs">-</div>
+                            </div>
+                        </div>
+                        <button class="btn-retry" onclick="resetApp()">
+                            🔄 Analyze Another Food
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer (cleaned per request) -->
+    <div class="footer"></div>
+
+    <script>
+        // Camera stream variable
+        let cameraStream = null;
+
+        // Create animated particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // Camera functions
+        async function openCamera() {
+            try {
+                const constraints = {
+                    video: {
+                        facingMode: 'environment', // Use back camera on mobile
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                };
+
+                cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+                const video = document.getElementById('cameraVideo');
+                video.srcObject = cameraStream;
+
+                // Show camera section, hide upload area
+                document.getElementById('uploadArea').style.display = 'none';
+                document.getElementById('cameraSection').style.display = 'block';
+                document.getElementById('error').style.display = 'none';
+            } catch (error) {
+                showError('Camera access denied or not available: ' + error.message);
+            }
+        }
+
+        function closeCamera() {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
+
+            // Hide camera section, show upload area
+            document.getElementById('cameraSection').style.display = 'none';
+            document.getElementById('uploadArea').style.display = 'block';
+        }
+
+        function capturePhoto() {
+            const video = document.getElementById('cameraVideo');
+            const canvas = document.getElementById('cameraCanvas');
+            const context = canvas.getContext('2d');
+
+            // Set canvas size to video size
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            // Draw video frame to canvas
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Convert canvas to blob and upload
+            canvas.toBlob((blob) => {
+                if (blob) {
+                    const file = new File([blob], 'camera-photo.jpg', { type: 'image/jpeg' });
+                    closeCamera();
+                    handleFile(file);
+                }
+            }, 'image/jpeg', 0.95);
+        }
+
+        // Drag and drop functionality
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => {
+                uploadArea.classList.add('dragover');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => {
+                uploadArea.classList.remove('dragover');
+            });
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            // Validate file type
+            const validTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+            if (!validTypes.includes(file.type)) {
+                showError('Invalid file type. Please upload PNG, JPG, or JPEG.');
+                return;
+            }
+
+            // Validate file size (max 16MB)
+            if (file.size > 16 * 1024 * 1024) {
+                showError('File too large. Maximum size is 16MB.');
+                return;
+            }
+
+            // Upload file
+            uploadFile(file);
+        }
+
+        function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('results').style.display = 'none';
+
+            // Send to server
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading').style.display = 'none';
+
+                if (data.success) {
+                    showResults(data);
+                } else {
+                    showError(data.error || 'Prediction failed');
+                }
+            })
+            .catch(error => {
+                document.getElementById('loading').style.display = 'none';
+                showError('Connection error: ' + error.message);
+            });
+        }
+
+        function showResults(data) {
+            // Set image
+            document.getElementById('resultImage').src = data.image;
+
+            // Set food name
+            document.getElementById('foodName').textContent = data.food_name.replace(/-/g, ' ');
+
+            // Set confidence
+            document.getElementById('confidenceValue').textContent = data.confidence;
+            const headerConf = document.getElementById('headerConfidence');
+            const headerConfVal = document.getElementById('headerConfidenceValue');
+            if (data.confidence) {
+                headerConfVal.textContent = data.confidence;
+                headerConf.style.display = 'inline-flex';
+            } else {
+                headerConf.style.display = 'none';
+            }
+
+            // Set nutrition
+            if (data.nutrition) {
+                document.getElementById('calories').textContent = data.nutrition.calories;
+                document.getElementById('protein').textContent = data.nutrition.protein;
+                document.getElementById('fat').textContent = data.nutrition.fat;
+                document.getElementById('carbs').textContent = data.nutrition.carbohydrate;
+            } else {
+                document.getElementById('calories').textContent = 'N/A';
+                document.getElementById('protein').textContent = 'N/A';
+                document.getElementById('fat').textContent = 'N/A';
+                document.getElementById('carbs').textContent = 'N/A';
+            }
+
+            // Show results
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = '❌ Error: ' + message;
+            errorDiv.style.display = 'block';
+        }
+
+        function resetApp() {
+            // Close camera if open
+            closeCamera();
+            
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('fileInput').value = '';
+            document.getElementById('uploadArea').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

@@ -9,8 +9,11 @@ from PIL import Image
 from torchvision import transforms
 import pandas as pd
 import os
+import sys
 
-from food_model import EfficientNetB0Food
+# Add parent directory to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
+from training.food_model import EfficientNetB0Food
 
 class FoodClassifier:
     def __init__(self, model_path='food_model_efficientnet.pth', num_classes=35):
@@ -40,7 +43,13 @@ class FoodClassifier:
         
         # Load model
         self.model = EfficientNetB0Food(num_classes=num_classes, pretrained=False)
-        self.model.load_state_dict(torch.load(model_path, map_location=self.device))
+        # Accept either a raw state_dict or a training checkpoint dict
+        loaded = torch.load(model_path, map_location=self.device)
+        if isinstance(loaded, dict) and 'model_state_dict' in loaded:
+            state_dict = loaded['model_state_dict']
+        else:
+            state_dict = loaded
+        self.model.load_state_dict(state_dict)
         self.model = self.model.to(self.device)
         self.model.eval()
         
@@ -140,16 +149,21 @@ def main():
     print(f"\nPredicting: {image_path}")
     print("-"*60)
     
-    result = classifier.predict(image_path, top_k=5)
-    
-    # Display results
-    print(f"\n🍽️  Top Prediction: {result['top_prediction']}")
-    print(f"✓ Confidence: {result['top_confidence']}")
-    
+    predictions = classifier.predict(image_path, top_k=5)
+
+    # Display results (top-5)
+    if not predictions:
+        print("No predictions returned")
+        return
+
+    top = predictions[0]
+    print(f"\n🍽️  Top Prediction: {top['class']}")
+    print(f"✓ Confidence: {top['confidence']:.4f}")
+
     print(f"\n📊 Top-5 Predictions:")
     print("-"*60)
-    for i, pred in enumerate(result['all_predictions'], 1):
-        print(f"{i}. {pred['class']:<25} {pred['confidence']:>8}")
+    for i, pred in enumerate(predictions, 1):
+        print(f"{i}. {pred['class']:<25} {pred['confidence']:.4f}")
     
     print("="*60)
 

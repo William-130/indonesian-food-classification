@@ -62,3 +62,6 @@ tmp_*.jpg
 
 # Large datasets - EXCLUDE from Git!
 Dataset ML/
+
+# Hugging Face deployment folder
+huggingface/
